@@ -265,7 +265,7 @@ void testApp::setState(int s) {
 		case STATE_MISS:
 			cout << "STATE_MISS" << endl;
 			// Set the deadline for when the "Missed!" message disappears.
-			deadline = ofGetSystemTime() + 1200 + ofRandom(1) * 800;
+			deadline = ofGetSystemTime() + 1000;
 			break;
 			
 		case STATE_HIT:
@@ -281,7 +281,8 @@ void testApp::setState(int s) {
 }
 
 bool testApp::hitZombie(int x, int y) {
-	return true;
+	return zombiePoint.x < x && x < zombiePoint.x + zombieImage.width
+		&& zombiePoint.y < y && y < zombiePoint.y + zombieImage.height;
 }
 
 Score testApp::recordScore(bool hit) {
