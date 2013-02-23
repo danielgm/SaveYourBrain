@@ -21,24 +21,30 @@ void testApp::setup() {
 	introImage.loadImage("slide_intro.jpg");
 	backgroundImage.loadImage("gameplay_background.jpg");
 	zombieImage.loadImage("zombie_normal.jpg");
+	zombieHitImage.loadImage("zombie_hit.jpg");
 	
-	state = STATE_INTRO;
+	setState(STATE_INTRO);
+	difficulty = DIFFICULTY_EASY;
 }
 
 void testApp::update() {
-	if (ofGetSystemTime() > deadline) {
+	if (deadline > 0 && ofGetSystemTime() > deadline) {
 		deadline = -1;
 		
 		switch (state) {
 			case STATE_INTRO:
 				break;
 			case STATE_READY:
+				setState(STATE_ZOMBIE);
 				break;
 			case STATE_ZOMBIE:
+				setState(STATE_READY);
 				break;
 			case STATE_MISS:
+				setState(STATE_READY);
 				break;
 			case STATE_HIT:
+				setState(STATE_READY);
 				break;
 			case STATE_SCORE:
 				break;
@@ -78,7 +84,7 @@ void testApp::draw() {
 			
 		case STATE_ZOMBIE:
 			backgroundImage.draw(0, 0);
-			zombieImage.draw(200, 200);
+			zombieImage.draw(zombiePoint.x, zombiePoint.y);
 			break;
 			
 		case STATE_MISS:
@@ -87,6 +93,7 @@ void testApp::draw() {
 			
 		case STATE_HIT:
 			backgroundImage.draw(0, 0);
+			zombieHitImage.draw(zombiePoint.x, zombiePoint.y);
 			break;
 			
 		case STATE_SCORE:
@@ -100,6 +107,22 @@ void testApp::exit() {
 }
 
 void testApp::keyPressed (int key) {
+	float total;
+	switch (key) {
+		case 'p':
+			cout << "Scores:" << endl;
+			
+			total = 0;
+			for (int i = 0; i < scores.size(); i++) {
+				cout << scores[i].time << " ms" << endl;
+				total += scores[i].time;
+			}
+			cout << "Average:" << (total/scores.size()) << endl;
+			
+			break;
+			
+		default:;
+	}
 }
 
 void testApp::mouseDragged(int x, int y, int button)
@@ -111,17 +134,23 @@ void testApp::mousePressed(int x, int y, int button)
 void testApp::mouseReleased(int x, int y, int button) {
 	switch (state) {
 		case STATE_INTRO:
-			state = STATE_READY;
+			setState(STATE_READY);
 			break;
 		case STATE_READY:
-			state = STATE_MISS;
+			setState(STATE_MISS);
 			break;
 		case STATE_ZOMBIE:
 			if (hitZombie(mouseX, mouseY)) {
-				
+				setState(STATE_HIT);
+				recordScore(true);
+			}
+			else {
+				setState(STATE_MISS);
+				recordScore(false);
 			}
 			break;
 		case STATE_MISS:
+			recordScore(false);
 			break;
 		case STATE_HIT:
 			break;
@@ -209,30 +238,60 @@ void testApp::setState(int s) {
 	
 	switch (state) {
 		case STATE_INTRO:
+			cout << "STATE_INTRO" << endl;
 			break;
+			
 		case STATE_READY:
+			cout << "STATE_READY" << endl;
 			// Set the deadline for when the next zombie appears.
-			deadline = ofGetSystemTime() + 1200 + ofRandom(1) * 800;
+			deadline = ofGetSystemTime() + 200 + ofRandom(1) * 800;
 			break;
+			
 		case STATE_ZOMBIE:
-			// Set the deadline for when the zombie hides.
-			deadline = ofGetSystemTime() + 200 + ofRandom(1) * 600;
+			cout << "STATE_ZOMBIE" << endl;
+			if (difficulty == DIFFICULTY_HARD) {
+				// Set the deadline for when the zombie hides.
+				deadline = ofGetSystemTime() + 500 + ofRandom(1) * 1500;
+			}
+			else {
+				// No deadline for other difficulties.
+				deadline = -1;
+			}
+			
+			zombiePoint = ofPoint(30 + floor(ofRandom(1) * 5) * 280, 500);
+			startTime = ofGetSystemTime();
 			break;
+			
 		case STATE_MISS:
+			cout << "STATE_MISS" << endl;
 			// Set the deadline for when the "Missed!" message disappears.
 			deadline = ofGetSystemTime() + 1200 + ofRandom(1) * 800;
 			break;
+			
 		case STATE_HIT:
+			cout << "STATE_HIT" << endl;
 			// Set the deadline for when the "Hit!" message disappears.
 			deadline = ofGetSystemTime() + 1200 + ofRandom(1) * 800;
 			break;
+			
 		case STATE_SCORE:
+			cout << "STATE_SCORE" << endl;
 			break;
 	}
 }
 
 bool testApp::hitZombie(int x, int y) {
 	return true;
+}
+
+Score testApp::recordScore(bool hit) {
+	Score score;
+	score.hit = hit;
+	score.difficulty = difficulty;
+	score.time = ofGetSystemTime() - startTime;
+	scores.push_back(score);
+	
+	return score;
 }
 
 

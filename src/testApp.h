@@ -18,6 +18,16 @@ using namespace std;
 #define STATE_SCORE 5
 #define STATE_ -1
 
+#define DIFFICULTY_EASY 0
+#define DIFFICULTY_NORMAL 1
+#define DIFFICULTY_HARD 2
+
+struct Score {
+	float time;
+	int difficulty;
+	bool hit;
+};
+
 class testApp : public ofBaseApp {
 public:
 	
@@ -39,11 +49,16 @@ public:
 	bool hitZombie(int x, int y);
 	
 	void setState(int s);
+	Score recordScore(bool hit);
 	
 	int state;
+	int difficulty;
 	
 	// The state sometimes changes automatically after a deadline.
 	float deadline;
+	
+	// The time when the zombie was first shown. Used for calculating response time.
+	float startTime;
 	
 	ofImage introImage;
 	ofImage backgroundImage;
@@ -52,6 +67,12 @@ public:
 	ofImage missImage;
 	ofImage hitImage;
 	
+	ofPoint zombiePoint;
+	
 	ofTrueTypeFont verdana14;
 	ofTrueTypeFont verdana30;
+	
+	// A record of scores in milliseconds.
+	vector<Score> scores;
 };
+
