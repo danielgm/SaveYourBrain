@@ -43,7 +43,7 @@ public:
 	float getAverageHitTimes();
 	
 	// Test whether the mouse hit the zombie.
-	bool hitZombie(int x, int y);
+	bool hitZombie(int x, int y, bool isLeap);
 	
 	void setState(int s);
 	Score recordHit();
@@ -66,6 +66,7 @@ public:
 	ofImage missImage;
 	ofImage hitImage;
 	
+	ofSoundPlayer themeSound;
 	ofSoundPlayer arghSound1;
 	ofSoundPlayer arghSound2;
 	ofSoundPlayer brainsSound;
@@ -89,7 +90,17 @@ public:
 	
 	ofxLeapMotion leap;
 	vector <ofxLeapMotionSimpleHand> simpleHands;
+	bool fingerClicking;
+	ofPoint leapPoint;
+	bool hasFingers;
 	
 	bool mute;
+	
+	float calibrationMinX;
+	float calibrationMaxX;
+	float calibrationMinY;
+	float calibrationMaxY;
+	float screenWidth;
+	float screenHeight;
 };
 

@@ -39,6 +39,7 @@ void testApp::setup() {
 	hitImage.loadImage("hit.png");
 	missImage.loadImage("miss.png");
 	
+	themeSound.loadSound("theme.wav");
 	arghSound1.loadSound("arggggh.mp3");
 	arghSound2.loadSound("arggggh2.mp3");
 	brainsSound.loadSound("brains.mp3");
@@ -50,6 +51,13 @@ void testApp::setup() {
 	difficulty = DIFFICULTY_EASY;
 	
 	mute = false;
+	
+	calibrationMinX = -700;
+	calibrationMaxX = 700;
+	calibrationMinY = 500;
+	calibrationMaxY = -500;
+	screenWidth = 1440;
+	screenHeight = 900;
 }
 
 void testApp::update() {
@@ -104,36 +112,66 @@ void testApp::update() {
 	
     simpleHands = leap.getSimpleHands();
     
-    if( leap.isFrameNew() && simpleHands.size() ){
-		
+    if (leap.isFrameNew() && simpleHands.size()) {
         leap.setMappingX(-230, 230, -ofGetWidth()/2, ofGetWidth()/2);
 		leap.setMappingY(90, 490, -ofGetHeight()/2, ofGetHeight()/2);
         leap.setMappingZ(-150, 150, -200, 200);
 		
+		hasFingers = false;
         for(int i = 0; i < simpleHands.size(); i++){
-			
             for(int j = 0; j < simpleHands[i].fingers.size(); j++){
                 int id = simpleHands[i].fingers[j].id;
+				cout << leapPoint.y << endl;
+				// pt.x range is ±700
+				// pt.y doesn't matter
+				// pt.z is a click when < -200
+				leapPoint = simpleHands[i].fingers[j].pos;
+				if (leapPoint.z < -200) {
+					if (!fingerClicking) {
+						cout << "Fingered!" << endl;
+						switch (state) {
+							case STATE_INTRO:
+								setState(STATE_READY);
+								break;
+								
+							case STATE_READY:
+								break;
+								
+							case STATE_ZOMBIE:
+								if (hitZombie(ofMap(leapPoint.x, calibrationMinX, calibrationMaxX, 0, screenWidth), ofMap(leapPoint.y, calibrationMinY, calibrationMaxY, 0, screenHeight), true)) {
+									setState(STATE_HIT);
+									recordHit();
+								}
+								else {
+									setState(STATE_MISS);
+									recordMiss();
+								}
+								break;
+								
+							case STATE_HIT:
+								break;
+								
+							case STATE_HIT_MESSAGE:
+								break;
+								
+							case STATE_MISS:
+								break;
+								
+							case STATE_SCORE:
+								hits.clear();
+								misses.clear();
+								
+								setState(STATE_READY);
+								break;
+						}
+						fingerClicking = true;
+					}
+				}
+				else {
+					fingerClicking = false;
+				}
 				
-				ofPoint pt = simpleHands[i].fingers[j].pos;
-				cout << id << pt.x << ", " << pt.y << ", " << pt.z << endl;
-				
-				/*
-                ofPolyline & polyline = fingerTrails[id];
-                ofPoint pt = simpleHands[i].fingers[j].pos;
-                
-                //if the distance between the last point and the current point is too big - lets clear the line
-                //this stops us connecting to an old drawing
-                if( polyline.size() && (pt-polyline[polyline.size()-1] ).length() > 50 ){
-                    polyline.clear();
-                }
-                
-                //add our point to our trail
-                polyline.addVertex(pt);
-                
-                //store fingers seen this frame for drawing
-                fingersFound.push_back(id);
-				*/
+				hasFingers = true;
             }
         }
     }
@@ -158,6 +196,13 @@ void testApp::draw() {
 		case STATE_ZOMBIE:
 			backgroundImage.draw(0, 0);
 			zombieImage.draw(zombiePoint.x, zombiePoint.y);
+
+			if (hasFingers) {
+				ofNoFill();
+				ofSetLineWidth(3);
+				ofCircle(ofMap(leapPoint.x, calibrationMinX, calibrationMaxX, 0, screenWidth),
+						 ofMap(leapPoint.y, calibrationMinY, calibrationMaxY, 0, screenHeight), 20);
+			}
 			break;
 			
 		case STATE_MISS:
@@ -170,14 +215,12 @@ void testApp::draw() {
 			backgroundImage.draw(0, 0);
 			zombieHitImage.draw(zombiePoint.x, zombiePoint.y + 8); // Alignment quickfix.
 			hitImage.draw(hitPoint.x, hitPoint.y);
-			
 			amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", 20, 60);
 			break;
 			
 		case STATE_HIT_MESSAGE:
 			backgroundImage.draw(0, 0);
 			hitImage.draw(hitPoint.x, hitPoint.y);
-			
 			amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", 20, 60);
 			break;
 			
@@ -185,11 +228,8 @@ void testApp::draw() {
 			scoreBackgroundImage.draw(0,0);
 			amplitudeBook14.drawString("Average Reaction Time", 580, 200);
 			amplitudeBook30.drawString(ofToString(floor(getAverageHitTimes())) + " ms", 620, 270);
-			
 			zombieHitImage.draw(1000, 500);
 			break;
-			
-		default:;
 	}
 }
 
@@ -209,7 +249,7 @@ void testApp::keyPressed (int key) {
 			for (i = 0; i < hits.size(); i++) {
 				cout << hits[i].time << " ms" << endl;
 			}
-						
+			
 			cout << "Average:" << getAverageHitTimes() << " ms" << endl;
 			
 			break;
@@ -218,8 +258,6 @@ void testApp::keyPressed (int key) {
 			mute = !mute;
 			cout << (mute ? "Muted." : "Unmuted.") << endl;
 			break;
-			
-		default:;
 	}
 }
 
@@ -234,6 +272,7 @@ void testApp::mouseReleased(int x, int y, int button) {
 		case STATE_INTRO:
 			// Play the "brains" sound here so it only happens the first time.
 			if (!mute) {
+				themeSound.stop();
 				brainsSound.play();
 			}
 			setState(STATE_READY);
@@ -242,7 +281,7 @@ void testApp::mouseReleased(int x, int y, int button) {
 			setState(STATE_MISS);
 			break;
 		case STATE_ZOMBIE:
-			if (hitZombie(mouseX, mouseY)) {
+			if (hitZombie(mouseX, mouseY, false)) {
 				setState(STATE_HIT);
 				recordHit();
 			}
@@ -257,12 +296,11 @@ void testApp::mouseReleased(int x, int y, int button) {
 		case STATE_HIT:
 			break;
 		case STATE_SCORE:
-			setState(STATE_READY);
 			hits.clear();
 			misses.clear();
-			break;
-		default:;
 			
+			setState(STATE_READY);
+			break;
 	}
 }
 
@@ -277,6 +315,7 @@ void testApp::setState(int s) {
 	switch (state) {
 		case STATE_INTRO:
 			cout << "STATE_INTRO" << endl;
+			themeSound.play();
 			break;
 			
 		case STATE_READY:
@@ -307,10 +346,10 @@ void testApp::setState(int s) {
 				deadline = -1;
 			}
 			
-			offset = floor(ofRandom(1) * 5);
-			zombiePoint = ofPoint(30 + offset * 250, 220);
-			hitPoint = ofPoint(190 + offset * 250, 30);
-			missPoint = ofPoint(190 + offset * 250, 30);
+			offset = floor(ofRandom(1) * 6);
+			zombiePoint = ofPoint(30 + offset * 180, 220);
+			hitPoint = ofPoint(190 + offset * 180, 30);
+			missPoint = ofPoint(190 + offset * 180, 30);
 			
 			startTime = ofGetSystemTime();
 			break;
@@ -350,9 +389,9 @@ void testApp::setState(int s) {
 	}
 }
 
-bool testApp::hitZombie(int x, int y) {
+bool testApp::hitZombie(int x, int y, bool isLeap) {
 	return zombiePoint.x < x && x < zombiePoint.x + zombieImage.width
-		&& zombiePoint.y < y && y < zombiePoint.y + zombieImage.height;
+		&& (isLeap || (zombiePoint.y < y && y < zombiePoint.y + zombieImage.height));
 }
 
 Score testApp::recordHit() {
