@@ -14,6 +14,14 @@ void testApp::setup() {
 	//old OF default is 96 - but this results in fonts looking larger than in other programs.
 	ofTrueTypeFont::setGlobalDpi(72);
 	
+	amplitudeBook14.loadFont("Amplitude-Book.ttf", 30, true, true);
+	amplitudeBook14.setLineHeight(18.0f);
+	amplitudeBook14.setLetterSpacing(1.037);
+	
+	amplitudeBook30.loadFont("Amplitude-Book.ttf", 60, true, true);
+	amplitudeBook30.setLineHeight(18.0f);
+	amplitudeBook30.setLetterSpacing(1.037);
+	
 	verdana14.loadFont("verdana.ttf", 14, true, true);
 	verdana14.setLineHeight(18.0f);
 	verdana14.setLetterSpacing(1.037);
@@ -54,7 +62,12 @@ void testApp::update() {
 				setState(STATE_HIT_MESSAGE);
 				break;
 			case STATE_HIT_MESSAGE:
-				setState(STATE_READY);
+				if (hits.size() > 4) {
+					setState(STATE_SCORE);
+				}
+				else {
+					setState(STATE_READY);
+				}
 				break;
 			case STATE_SCORE:
 				break;
@@ -118,7 +131,7 @@ void testApp::update() {
 
 void testApp::draw() {
 	ofBackground(0);
-	ofSetColor(255, 255, 255);
+	ofSetColor(255);
 	
 	switch (state) {
 		case STATE_INTRO:
@@ -147,7 +160,7 @@ void testApp::draw() {
 			hitImage.draw(hitPoint.x, hitPoint.y);
 			
 			ofSetColor(255);
-			verdana30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
+			amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
 			break;
 			
 		case STATE_HIT_MESSAGE:
@@ -155,20 +168,20 @@ void testApp::draw() {
 			hitImage.draw(hitPoint.x, hitPoint.y);
 			
 			ofSetColor(255);
-			verdana30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
+			amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
 			break;
 			
 		case STATE_SCORE:
+			ofBackground(52);
+			amplitudeBook14.drawString("Average Reaction Time", 580, 400);
+			amplitudeBook30.drawString(ofToString(floor(getAverageHitTimes())) + " ms", 620, 470);
+			
+			zombieHitImage.draw(1000, 500);
 			break;
 			
 		default:;
 	}
-	
-	if (hits.size() > 0) {
-		ofSetColor(255);
-		verdana14.drawString("Average", 20, 20);
-		verdana30.drawString(ofToString(floor(getAverageHitTimes())) + " ms", 20, 40);
-	}}
+}
 
 void testApp::exit() {
 }
@@ -225,6 +238,9 @@ void testApp::mouseReleased(int x, int y, int button) {
 		case STATE_HIT:
 			break;
 		case STATE_SCORE:
+			setState(STATE_READY);
+			hits.clear();
+			misses.clear();
 			break;
 		default:;
 			

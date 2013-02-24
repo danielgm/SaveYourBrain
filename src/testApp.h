@@ -69,6 +69,8 @@ public:
 	ofPoint hitPoint;
 	ofPoint missPoint;
 	
+	ofTrueTypeFont amplitudeBook14;
+	ofTrueTypeFont amplitudeBook30;
 	ofTrueTypeFont verdana14;
 	ofTrueTypeFont verdana30;
 	
