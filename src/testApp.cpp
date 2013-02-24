@@ -31,13 +31,13 @@ void testApp::setup() {
 	verdana30.setLetterSpacing(1.035);
 	
 	// Load slides.
-	introImage.loadImage("saveyourbrain.jpg");
+	introImage.loadImage("saveyourbrain.png");
 	backgroundImage.loadImage("saveyourbrainbg.jpg");
 	scoreBackgroundImage.loadImage("saveyourbrainscorebg.png");
 	zombieImage.loadImage("zombie_normal.png");
 	zombieHitImage.loadImage("zombie_hit.png");
-	hitImage.loadImage("hit.jpg");
-	missImage.loadImage("miss.jpg");
+	hitImage.loadImage("hit.png");
+	missImage.loadImage("miss.png");
 	
 	arghSound1.loadSound("arggggh.mp3");
 	arghSound2.loadSound("arggggh2.mp3");
@@ -115,7 +115,9 @@ void testApp::update() {
             for(int j = 0; j < simpleHands[i].fingers.size(); j++){
                 int id = simpleHands[i].fingers[j].id;
 				
-				cout << id << endl;
+				ofPoint pt = simpleHands[i].fingers[j].pos;
+				cout << id << pt.x << ", " << pt.y << ", " << pt.z << endl;
+				
 				/*
                 ofPolyline & polyline = fingerTrails[id];
                 ofPoint pt = simpleHands[i].fingers[j].pos;
@@ -169,16 +171,14 @@ void testApp::draw() {
 			zombieHitImage.draw(zombiePoint.x, zombiePoint.y + 8); // Alignment quickfix.
 			hitImage.draw(hitPoint.x, hitPoint.y);
 			
-			ofSetColor(255);
-			amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
+			//amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
 			break;
 			
 		case STATE_HIT_MESSAGE:
 			backgroundImage.draw(0, 0);
 			hitImage.draw(hitPoint.x, hitPoint.y);
 			
-			ofSetColor(255);
-			amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
+			//amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
 			break;
 			
 		case STATE_SCORE:
@@ -309,8 +309,8 @@ void testApp::setState(int s) {
 			
 			offset = floor(ofRandom(1) * 5);
 			zombiePoint = ofPoint(30 + offset * 250, 220);
-			hitPoint = ofPoint(120 + offset * 250, 190);
-			missPoint = ofPoint(120 + offset * 250, 190);
+			hitPoint = ofPoint(190 + offset * 250, 30);
+			missPoint = ofPoint(190 + offset * 250, 30);
 			
 			startTime = ofGetSystemTime();
 			break;
