@@ -4,11 +4,8 @@
 #include "ofUtils.h"
 #include "ofxKinect.h"
 #include "vector.h"
-//#include "Leap.h"
-
 
 using namespace std;
-//using namespace Leap;
 
 #define STATE_INTRO 0
 #define STATE_READY 1
@@ -42,14 +39,14 @@ public:
 	void mouseReleased(int x, int y, int button);
 	void windowResized(int w, int h);
 	
-	void drawIntro();
-	void drawTest();
+	float getAverageHitTimes();
 	
 	// Test whether the mouse hit the zombie.
 	bool hitZombie(int x, int y);
 	
 	void setState(int s);
-	Score recordScore(bool hit);
+	Score recordHit();
+	Score recordMiss();
 	
 	int state;
 	int difficulty;
@@ -75,6 +72,8 @@ public:
 	ofTrueTypeFont verdana30;
 	
 	// A record of scores in milliseconds.
-	vector<Score> scores;
+	vector<Score> hits;
+	vector<Score> misses;
+	Score latestScore;
 };
 

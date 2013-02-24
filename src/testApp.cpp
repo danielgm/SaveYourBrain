@@ -1,5 +1,7 @@
 #include "testApp.h"
+//#include "Leap.h"
 
+//using namespace Leap;
 
 void testApp::setup() {
 	ofSetLogLevel(OF_LOG_VERBOSE);
@@ -18,8 +20,8 @@ void testApp::setup() {
 	verdana30.setLetterSpacing(1.035);
 	
 	// Load slides.
-	introImage.loadImage("slide_intro.jpg");
-	backgroundImage.loadImage("gameplay_background.jpg");
+	introImage.loadImage("saveyourbrain.jpg");
+	backgroundImage.loadImage("saveyourbrainbg.jpg");
 	zombieImage.loadImage("zombie_normal.jpg");
 	zombieHitImage.loadImage("zombie_hit.jpg");
 	hitImage.loadImage("hit.jpg");
@@ -82,6 +84,7 @@ void testApp::draw() {
 		
 		case STATE_READY:
 			backgroundImage.draw(0, 0);
+			ofSetColor(0);
 			break;
 			
 		case STATE_ZOMBIE:
@@ -99,6 +102,9 @@ void testApp::draw() {
 			backgroundImage.draw(0, 0);
 			zombieHitImage.draw(zombiePoint.x, zombiePoint.y);
 			hitImage.draw(hitPoint.x, hitPoint.y);
+			
+			ofSetColor(255);
+			verdana30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
 			break;
 			
 		case STATE_SCORE:
@@ -106,23 +112,31 @@ void testApp::draw() {
 			
 		default:;
 	}
-}
+	
+	if (hits.size() > 0) {
+		ofSetColor(255);
+		verdana14.drawString("Average", 20, 20);
+		verdana30.drawString(ofToString(floor(getAverageHitTimes())) + " ms", 20, 40);
+	}}
 
 void testApp::exit() {
 }
 
 void testApp::keyPressed (int key) {
-	float total;
+	int i;
+	
 	switch (key) {
-		case 'p':
-			cout << "Scores:" << endl;
+		case ' ':
+			setState(STATE_SCORE);
 			
-			total = 0;
-			for (int i = 0; i < scores.size(); i++) {
-				cout << scores[i].time << " ms" << endl;
-				total += scores[i].time;
+			cout << misses.size() << " misses." << endl;
+			cout << hits.size() << " hits:" << endl;
+			
+			for (i = 0; i < hits.size(); i++) {
+				cout << hits[i].time << " ms" << endl;
 			}
-			cout << "Average:" << (total/scores.size()) << endl;
+						
+			cout << "Average:" << getAverageHitTimes() << " ms" << endl;
 			
 			break;
 			
@@ -130,11 +144,11 @@ void testApp::keyPressed (int key) {
 	}
 }
 
-void testApp::mouseDragged(int x, int y, int button)
-{}
+void testApp::mouseDragged(int x, int y, int button) {
+}
 
-void testApp::mousePressed(int x, int y, int button)
-{}
+void testApp::mousePressed(int x, int y, int button) {
+}
 
 void testApp::mouseReleased(int x, int y, int button) {
 	switch (state) {
@@ -147,15 +161,15 @@ void testApp::mouseReleased(int x, int y, int button) {
 		case STATE_ZOMBIE:
 			if (hitZombie(mouseX, mouseY)) {
 				setState(STATE_HIT);
-				recordScore(true);
+				recordHit();
 			}
 			else {
 				setState(STATE_MISS);
-				recordScore(false);
+				recordMiss();
 			}
 			break;
 		case STATE_MISS:
-			recordScore(false);
+			recordMiss();
 			break;
 		case STATE_HIT:
 			break;
@@ -166,73 +180,7 @@ void testApp::mouseReleased(int x, int y, int button) {
 	}
 }
 
-void testApp::windowResized(int w, int h)
-{}
-
-void testApp::drawIntro() {
-	ofSetColor(255, 255, 255);
-
-	string typeStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n0123456789,:&!?";
-	
-	ofSetColor(225);
-	verdana14.drawString("Font Example - use keyboard to type", 30, 35);
-	
-	ofSetColor(245, 58, 135);
-	verdana14.drawString("anti aliased", 145, 92);
-	verdana14.drawString("anti aliased", 145, 195);
-	
-	ofSetColor(225);
-	verdana14.drawString("verdana 14pt - ", 30, 92);
-	verdana14.drawString(typeStr, 30, 111);
-	
-	ofRect(420, 97, 292, 62);
-	ofSetColor(54, 54, 54);
-	
-	
-	ofSetColor(29,29,29);
-	ofLine(30, 169, ofGetWidth()-4, 169);
-	
-	ofSetColor(225);
-	verdana14.drawString("verdana 30pt - ", 30, 195);
-	verdana30.drawString(typeStr, 30, 229);
-	
-	stringstream reportStream;
-	reportStream << "Zombies and stuff!" << endl
-	<< "fps: " << ofGetFrameRate() << endl;
-	ofDrawBitmapString(reportStream.str(),20,652);
-}
-
-void testApp::drawTest() {
-	ofSetColor(255, 255, 255);
-	
-	string typeStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n0123456789,:&!?";
-	
-	ofSetColor(225);
-	verdana14.drawString("Font Example - use keyboard to type", 30, 35);
-	
-	ofSetColor(245, 58, 135);
-	verdana14.drawString("anti aliased", 145, 92);
-	verdana14.drawString("anti aliased", 145, 195);
-	
-	ofSetColor(225);
-	verdana14.drawString("verdana 14pt - ", 30, 92);
-	verdana14.drawString(typeStr, 30, 111);
-	
-	ofRect(420, 97, 292, 62);
-	ofSetColor(54, 54, 54);
-	
-	
-	ofSetColor(29,29,29);
-	ofLine(30, 169, ofGetWidth()-4, 169);
-	
-	ofSetColor(225);
-	verdana14.drawString("verdana 30pt - ", 30, 195);
-	verdana30.drawString(typeStr, 30, 229);
-	
-	stringstream reportStream;
-	reportStream << "Zombies and stuff!" << endl
-	<< "fps: " << ofGetFrameRate() << endl;
-	ofDrawBitmapString(reportStream.str(),20,652);
+void testApp::windowResized(int w, int h) {
 }
 
 void testApp::setState(int s) {
@@ -263,9 +211,9 @@ void testApp::setState(int s) {
 			}
 			
 			offset = floor(ofRandom(1) * 5);
-			zombiePoint = ofPoint(30 + offset * 280, 500);
-			hitPoint = ofPoint(120 + offset * 280, 400);
-			missPoint = ofPoint(120 + offset * 280, 400);
+			zombiePoint = ofPoint(30 + offset * 280, 400);
+			hitPoint = ofPoint(120 + offset * 280, 300);
+			missPoint = ofPoint(120 + offset * 280, 300);
 			
 			startTime = ofGetSystemTime();
 			break;
@@ -293,33 +241,32 @@ bool testApp::hitZombie(int x, int y) {
 		&& zombiePoint.y < y && y < zombiePoint.y + zombieImage.height;
 }
 
-Score testApp::recordScore(bool hit) {
+Score testApp::recordHit() {
 	Score score;
-	score.hit = hit;
 	score.difficulty = difficulty;
 	score.time = ofGetSystemTime() - startTime;
-	scores.push_back(score);
+	
+	hits.push_back(score);
+	latestScore = score;
 	
 	return score;
 }
 
+Score testApp::recordMiss() {
+	Score score;
+	score.difficulty = difficulty;
+	score.time = ofGetSystemTime() - startTime;
+	
+	misses.push_back(score);
+	latestScore = score;
+	
+	return score;
+}
 
-/*
- Snippets:
- 
- switch (state) {
- case STATE_INTRO:
- break;
- case STATE_READY:
- break;
- case STATE_ZOMBIE:
- break;
- case STATE_MISS:
- break;
- case STATE_HIT:
- break;
- case STATE_SCORE:
- break;
- }
- 
- */
+float testApp::getAverageHitTimes() {
+	float total = 0;
+	for (int i = 0; i < hits.size(); i++) {
+		total += hits[i].time;
+	}
+	return total / hits.size();
+}
