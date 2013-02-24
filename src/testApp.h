@@ -2,7 +2,6 @@
 
 #include "ofMain.h"
 #include "ofUtils.h"
-#include "ofxKinect.h"
 #include "vector.h"
 
 using namespace std;
