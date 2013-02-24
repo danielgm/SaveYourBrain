@@ -3,6 +3,9 @@ SaveYourBrain
 
 Brain rehabilitation game where you measure and improve reaction time by taking down zombies with Leap Motion.
 
+Video here:
+https://vimeo.com/60398625
+
 The Save Your Brain team:
 - Marco Pasqua (@marco_pasqua)
 - Karin Spirig (@khspirig)
