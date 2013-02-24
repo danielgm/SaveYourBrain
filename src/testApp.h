@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofUtils.h"
+#include "ofxLeapMotion.h"
 #include "vector.h"
 
 using namespace std;
@@ -11,7 +12,8 @@ using namespace std;
 #define STATE_ZOMBIE 2
 #define STATE_MISS 3
 #define STATE_HIT 4
-#define STATE_SCORE 5
+#define STATE_HIT_MESSAGE 5
+#define STATE_SCORE 6
 #define STATE_ -1
 
 #define DIFFICULTY_EASY 0
@@ -74,5 +76,8 @@ public:
 	vector<Score> hits;
 	vector<Score> misses;
 	Score latestScore;
+	
+	ofxLeapMotion leap;
+	vector <ofxLeapMotionSimpleHand> simpleHands;
 };
 

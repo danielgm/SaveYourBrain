@@ -5,8 +5,11 @@
 
 void testApp::setup() {
 	ofSetLogLevel(OF_LOG_VERBOSE);
-
+    ofSetVerticalSync(true);
 	ofSetFrameRate(60);
+	ofEnableAlphaBlending();
+	
+	leap.open();
 	
 	//old OF default is 96 - but this results in fonts looking larger than in other programs.
 	ofTrueTypeFont::setGlobalDpi(72);
@@ -22,8 +25,8 @@ void testApp::setup() {
 	// Load slides.
 	introImage.loadImage("saveyourbrain.jpg");
 	backgroundImage.loadImage("saveyourbrainbg.jpg");
-	zombieImage.loadImage("zombie_normal.jpg");
-	zombieHitImage.loadImage("zombie_hit.jpg");
+	zombieImage.loadImage("zombie_normal.png");
+	zombieHitImage.loadImage("zombie_hit.png");
 	hitImage.loadImage("hit.jpg");
 	missImage.loadImage("miss.jpg");
 	
@@ -48,6 +51,9 @@ void testApp::update() {
 				setState(STATE_READY);
 				break;
 			case STATE_HIT:
+				setState(STATE_HIT_MESSAGE);
+				break;
+			case STATE_HIT_MESSAGE:
 				setState(STATE_READY);
 				break;
 			case STATE_SCORE:
@@ -66,11 +72,48 @@ void testApp::update() {
 				break;
 			case STATE_HIT:
 				break;
+			case STATE_HIT_MESSAGE:
+				break;
 			case STATE_SCORE:
 				break;
 		}
 	}
 	
+    simpleHands = leap.getSimpleHands();
+    
+    if( leap.isFrameNew() && simpleHands.size() ){
+		
+        leap.setMappingX(-230, 230, -ofGetWidth()/2, ofGetWidth()/2);
+		leap.setMappingY(90, 490, -ofGetHeight()/2, ofGetHeight()/2);
+        leap.setMappingZ(-150, 150, -200, 200);
+		
+        for(int i = 0; i < simpleHands.size(); i++){
+			
+            for(int j = 0; j < simpleHands[i].fingers.size(); j++){
+                int id = simpleHands[i].fingers[j].id;
+				
+				cout << id << endl;
+				/*
+                ofPolyline & polyline = fingerTrails[id];
+                ofPoint pt = simpleHands[i].fingers[j].pos;
+                
+                //if the distance between the last point and the current point is too big - lets clear the line
+                //this stops us connecting to an old drawing
+                if( polyline.size() && (pt-polyline[polyline.size()-1] ).length() > 50 ){
+                    polyline.clear();
+                }
+                
+                //add our point to our trail
+                polyline.addVertex(pt);
+                
+                //store fingers seen this frame for drawing
+                fingersFound.push_back(id);
+				*/
+            }
+        }
+    }
+	
+	leap.markFrameAsOld();
 }
 
 void testApp::draw() {
@@ -101,6 +144,14 @@ void testApp::draw() {
 		case STATE_HIT:
 			backgroundImage.draw(0, 0);
 			zombieHitImage.draw(zombiePoint.x, zombiePoint.y);
+			hitImage.draw(hitPoint.x, hitPoint.y);
+			
+			ofSetColor(255);
+			verdana30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
+			break;
+			
+		case STATE_HIT_MESSAGE:
+			backgroundImage.draw(0, 0);
 			hitImage.draw(hitPoint.x, hitPoint.y);
 			
 			ofSetColor(255);
@@ -226,8 +277,14 @@ void testApp::setState(int s) {
 			
 		case STATE_HIT:
 			cout << "STATE_HIT" << endl;
+			// Set the deadline for when the hit zombie disappears.
+			deadline = ofGetSystemTime() + 600;
+			break;
+			
+		case STATE_HIT_MESSAGE:
+			cout << "STATE_HIT_MESSAGE" << endl;
 			// Set the deadline for when the "Hit!" message disappears.
-			deadline = ofGetSystemTime() + 1200 + ofRandom(1) * 800;
+			deadline = ofGetSystemTime() + 1200;
 			break;
 			
 		case STATE_SCORE:
