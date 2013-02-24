@@ -171,14 +171,14 @@ void testApp::draw() {
 			zombieHitImage.draw(zombiePoint.x, zombiePoint.y + 8); // Alignment quickfix.
 			hitImage.draw(hitPoint.x, hitPoint.y);
 			
-			//amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
+			amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", 20, 60);
 			break;
 			
 		case STATE_HIT_MESSAGE:
 			backgroundImage.draw(0, 0);
 			hitImage.draw(hitPoint.x, hitPoint.y);
 			
-			//amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", hitPoint.x, hitPoint.y);
+			amplitudeBook30.drawString(ofToString(floor(latestScore.time)) + " ms", 20, 60);
 			break;
 			
 		case STATE_SCORE:
