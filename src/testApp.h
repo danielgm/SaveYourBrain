@@ -68,6 +68,8 @@ public:
 	ofImage hitImage;
 	
 	ofPoint zombiePoint;
+	ofPoint hitPoint;
+	ofPoint missPoint;
 	
 	ofTrueTypeFont verdana14;
 	ofTrueTypeFont verdana30;

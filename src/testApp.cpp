@@ -22,6 +22,8 @@ void testApp::setup() {
 	backgroundImage.loadImage("gameplay_background.jpg");
 	zombieImage.loadImage("zombie_normal.jpg");
 	zombieHitImage.loadImage("zombie_hit.jpg");
+	hitImage.loadImage("hit.jpg");
+	missImage.loadImage("miss.jpg");
 	
 	setState(STATE_INTRO);
 	difficulty = DIFFICULTY_EASY;
@@ -89,11 +91,14 @@ void testApp::draw() {
 			
 		case STATE_MISS:
 			backgroundImage.draw(0, 0);
+			zombieImage.draw(zombiePoint.x, zombiePoint.y);
+			missImage.draw(hitPoint.x, hitPoint.y);
 			break;
 			
 		case STATE_HIT:
 			backgroundImage.draw(0, 0);
 			zombieHitImage.draw(zombiePoint.x, zombiePoint.y);
+			hitImage.draw(hitPoint.x, hitPoint.y);
 			break;
 			
 		case STATE_SCORE:
@@ -167,9 +172,6 @@ void testApp::windowResized(int w, int h)
 void testApp::drawIntro() {
 	ofSetColor(255, 255, 255);
 
-	
-	
-	
 	string typeStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n0123456789,:&!?";
 	
 	ofSetColor(225);
@@ -236,6 +238,8 @@ void testApp::drawTest() {
 void testApp::setState(int s) {
 	state = s;
 	
+	float offset;
+	
 	switch (state) {
 		case STATE_INTRO:
 			cout << "STATE_INTRO" << endl;
@@ -258,7 +262,11 @@ void testApp::setState(int s) {
 				deadline = -1;
 			}
 			
-			zombiePoint = ofPoint(30 + floor(ofRandom(1) * 5) * 280, 500);
+			offset = floor(ofRandom(1) * 5);
+			zombiePoint = ofPoint(30 + offset * 280, 500);
+			hitPoint = ofPoint(120 + offset * 280, 400);
+			missPoint = ofPoint(120 + offset * 280, 400);
+			
 			startTime = ofGetSystemTime();
 			break;
 			
