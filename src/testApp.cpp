@@ -4,7 +4,7 @@
 //using namespace Leap;
 
 void testApp::setup() {
-	ofSetLogLevel(OF_LOG_VERBOSE);
+	//ofSetLogLevel(OF_LOG_VERBOSE);
     ofSetVerticalSync(true);
 	ofSetFrameRate(60);
 	ofEnableAlphaBlending();
@@ -39,8 +39,17 @@ void testApp::setup() {
 	hitImage.loadImage("hit.jpg");
 	missImage.loadImage("miss.jpg");
 	
+	arghSound1.loadSound("arggggh.mp3");
+	arghSound2.loadSound("arggggh2.mp3");
+	brainsSound.loadSound("brains.mp3");
+	hitSound.loadSound("blast.mp3");
+	missSound.loadSound("miss.mp3");
+	painSound.loadSound("pain.mp3");
+	
 	setState(STATE_INTRO);
 	difficulty = DIFFICULTY_EASY;
+	
+	mute = false;
 }
 
 void testApp::update() {
@@ -157,7 +166,7 @@ void testApp::draw() {
 			
 		case STATE_HIT:
 			backgroundImage.draw(0, 0);
-			zombieHitImage.draw(zombiePoint.x, zombiePoint.y);
+			zombieHitImage.draw(zombiePoint.x, zombiePoint.y + 8); // Alignment quickfix.
 			hitImage.draw(hitPoint.x, hitPoint.y);
 			
 			ofSetColor(255);
@@ -205,6 +214,11 @@ void testApp::keyPressed (int key) {
 			
 			break;
 			
+		case 'm':
+			mute = !mute;
+			cout << (mute ? "Muted." : "Unmuted.") << endl;
+			break;
+			
 		default:;
 	}
 }
@@ -218,6 +232,10 @@ void testApp::mousePressed(int x, int y, int button) {
 void testApp::mouseReleased(int x, int y, int button) {
 	switch (state) {
 		case STATE_INTRO:
+			// Play the "brains" sound here so it only happens the first time.
+			if (!mute) {
+				brainsSound.play();
+			}
 			setState(STATE_READY);
 			break;
 		case STATE_READY:
@@ -254,7 +272,7 @@ void testApp::windowResized(int w, int h) {
 void testApp::setState(int s) {
 	state = s;
 	
-	float offset;
+	float offset, r;
 	
 	switch (state) {
 		case STATE_INTRO:
@@ -269,6 +287,17 @@ void testApp::setState(int s) {
 			
 		case STATE_ZOMBIE:
 			cout << "STATE_ZOMBIE" << endl;
+			
+			if (!mute) {
+				r = ofRandom(1);
+				if (r < 0.2) {
+					arghSound1.play();
+				}
+				else if (r < 0.4) {
+					arghSound2.play();
+				}
+			}
+			
 			if (difficulty == DIFFICULTY_HARD) {
 				// Set the deadline for when the zombie hides.
 				deadline = ofGetSystemTime() + 500 + ofRandom(1) * 1500;
@@ -288,12 +317,20 @@ void testApp::setState(int s) {
 			
 		case STATE_MISS:
 			cout << "STATE_MISS" << endl;
+			if (!mute) {
+				missSound.play();
+			}
+			
 			// Set the deadline for when the "Missed!" message disappears.
 			deadline = ofGetSystemTime() + 1000;
 			break;
 			
 		case STATE_HIT:
 			cout << "STATE_HIT" << endl;
+			if (!mute) {
+				hitSound.play();
+			}
+			
 			// Set the deadline for when the hit zombie disappears.
 			deadline = ofGetSystemTime() + 600;
 			break;
@@ -306,6 +343,9 @@ void testApp::setState(int s) {
 			
 		case STATE_SCORE:
 			cout << "STATE_SCORE" << endl;
+			if (!mute) {
+				painSound.play();
+			}
 			break;
 	}
 }

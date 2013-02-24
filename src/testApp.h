@@ -66,6 +66,13 @@ public:
 	ofImage missImage;
 	ofImage hitImage;
 	
+	ofSoundPlayer arghSound1;
+	ofSoundPlayer arghSound2;
+	ofSoundPlayer brainsSound;
+	ofSoundPlayer hitSound;
+	ofSoundPlayer missSound;
+	ofSoundPlayer painSound;
+	
 	ofPoint zombiePoint;
 	ofPoint hitPoint;
 	ofPoint missPoint;
@@ -82,5 +89,7 @@ public:
 	
 	ofxLeapMotion leap;
 	vector <ofxLeapMotionSimpleHand> simpleHands;
+	
+	bool mute;
 };
 
