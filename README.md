@@ -10,6 +10,9 @@ The Save Your Brain team:
 - Sean Sibbet (@seansibbet)
 - Daniel McLaren (@danielgm)
 
+Awesome #hhdesign help from:
+- Patricia Nunez (@rndmproductions)
+
 Built for Hacking Health Vancouver at Sanotron.
 http://hackinghealth.ca
 
