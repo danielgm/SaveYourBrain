@@ -60,6 +60,7 @@ public:
 	
 	ofImage introImage;
 	ofImage backgroundImage;
+	ofImage scoreBackgroundImage;
 	ofImage zombieImage;
 	ofImage zombieHitImage;
 	ofImage missImage;

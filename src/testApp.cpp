@@ -33,6 +33,7 @@ void testApp::setup() {
 	// Load slides.
 	introImage.loadImage("saveyourbrain.jpg");
 	backgroundImage.loadImage("saveyourbrainbg.jpg");
+	scoreBackgroundImage.loadImage("saveyourbrainscorebg.png");
 	zombieImage.loadImage("zombie_normal.png");
 	zombieHitImage.loadImage("zombie_hit.png");
 	hitImage.loadImage("hit.jpg");
@@ -172,9 +173,9 @@ void testApp::draw() {
 			break;
 			
 		case STATE_SCORE:
-			ofBackground(52);
-			amplitudeBook14.drawString("Average Reaction Time", 580, 400);
-			amplitudeBook30.drawString(ofToString(floor(getAverageHitTimes())) + " ms", 620, 470);
+			scoreBackgroundImage.draw(0,0);
+			amplitudeBook14.drawString("Average Reaction Time", 580, 200);
+			amplitudeBook30.drawString(ofToString(floor(getAverageHitTimes())) + " ms", 620, 270);
 			
 			zombieHitImage.draw(1000, 500);
 			break;
