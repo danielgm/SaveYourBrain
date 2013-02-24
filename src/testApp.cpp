@@ -278,9 +278,9 @@ void testApp::setState(int s) {
 			}
 			
 			offset = floor(ofRandom(1) * 5);
-			zombiePoint = ofPoint(30 + offset * 280, 400);
-			hitPoint = ofPoint(120 + offset * 280, 300);
-			missPoint = ofPoint(120 + offset * 280, 300);
+			zombiePoint = ofPoint(30 + offset * 250, 220);
+			hitPoint = ofPoint(120 + offset * 250, 190);
+			missPoint = ofPoint(120 + offset * 250, 190);
 			
 			startTime = ofGetSystemTime();
 			break;
