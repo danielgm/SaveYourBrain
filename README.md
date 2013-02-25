@@ -15,6 +15,7 @@ The Save Your Brain team:
 
 Awesome #hhdesign help from:
 - Patricia Nunez (@rndmproductions)
+- Carmen Chow (@ExPsyle)
 
 Built for Hacking Health Vancouver at Sanotron.
 http://hackinghealth.ca
